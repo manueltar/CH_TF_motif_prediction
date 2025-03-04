@@ -8,6 +8,7 @@ Rscripts_path=$(echo "/home/manuel.tardaguila/Scripts/R/")
 MASTER_ROUTE=$1
 analysis=$2
 List_of_TFs_for_occupancy=$3
+TF_motif_prediction=$4
 
 output_dir=$(echo "$MASTER_ROUTE""$analysis""/")
 
@@ -22,37 +23,37 @@ Log_files=$(echo "$Master_path_analysis""/""Log_files/")
 Search_result=$(echo "$Master_path_analysis""/""Search_result/")
 Search_result_Log_files=$(echo "$Master_path_analysis""/""Search_result/""Log_files""/")
 
-rm -rf $Search_result
-mkdir -p $Search_result
-rm -rf $Search_result_Log_files
-mkdir -p $Search_result_Log_files
+#rm -rf $Search_result ##################################################################### ARRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRGGGGGGGGHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+#mkdir -p $Search_result ##################################################################### ARRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRGGGGGGGGHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+#rm -rf $Search_result_Log_files ##################################################################### ARRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRGGGGGGGGHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+#mkdir -p $Search_result_Log_files ##################################################################### ARRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRGGGGGGGGHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 
 
-# ####################################################################################################################################################################### search_for_experiments_TF_occupancy
+####################################################################################################################################################################### search_for_experiments_TF_occupancy
 
-# type=$(echo "search_for_experiments_TF_occupancy")
-# outfile_search_for_experiments_TF_occupancy=$(echo "$Log_files""outfile_1_""$type"".log")
-# touch $outfile_search_for_experiments_TF_occupancy
-# echo -n "" > $outfile_search_for_experiments_TF_occupancy
-# name_search_for_experiments_TF_occupancy=$(echo "$type""_job")
-# seff_name=$(echo "seff""_""$type")
+type=$(echo "search_for_experiments_TF_occupancy")
+outfile_search_for_experiments_TF_occupancy=$(echo "$Log_files""outfile_1_""$type"".log")
+touch $outfile_search_for_experiments_TF_occupancy
+echo -n "" > $outfile_search_for_experiments_TF_occupancy
+name_search_for_experiments_TF_occupancy=$(echo "$type""_job")
+seff_name=$(echo "seff""_""$type")
 
 
-# Rscript_search_for_experiments_TF_occupancy=$(echo "$Rscripts_path""430_extract_experiments_for_TF_occupancy.R")
+Rscript_search_for_experiments_TF_occupancy=$(echo "$Rscripts_path""430_extract_experiments_for_TF_occupancy.R")
  
  
  
-# fileList=$(echo "/group/soranzo/manuel.tardaguila/MPRA_explore_results/TF_motif_analysis/reference_files/fileList.tab")
+fileList=$(echo "/group/soranzo/manuel.tardaguila/MPRA_explore_results/TF_motif_analysis/reference_files/fileList.tab")
 
 
-# myjobid_search_for_experiments_TF_occupancy=$(sbatch --output=$outfile_search_for_experiments_TF_occupancy --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=4 --mem-per-cpu=1024 --parsable --job-name $name_search_for_experiments_TF_occupancy --wrap="Rscript $Rscript_search_for_experiments_TF_occupancy --List_of_TFs_for_occupancy $List_of_TFs_for_occupancy --fileList $fileList --type $type --out $output_dir")
-# myjobid_seff_search_for_experiments_TF_occupancy=$(sbatch --dependency=afterany:$myjobid_search_for_experiments_TF_occupancy --open-mode=append --output=$outfile_search_for_experiments_TF_occupancy --job-name=$seff_name --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=1 --mem-per-cpu=128M --parsable --wrap="seff $myjobid_search_for_experiments_TF_occupancy >> $outfile_search_for_experiments_TF_occupancy")
+myjobid_search_for_experiments_TF_occupancy=$(sbatch --output=$outfile_search_for_experiments_TF_occupancy --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=4 --mem-per-cpu=1024 --parsable --job-name $name_search_for_experiments_TF_occupancy --wrap="Rscript $Rscript_search_for_experiments_TF_occupancy --List_of_TFs_for_occupancy $List_of_TFs_for_occupancy --fileList $fileList --type $type --out $output_dir")
+myjobid_seff_search_for_experiments_TF_occupancy=$(sbatch --dependency=afterany:$myjobid_search_for_experiments_TF_occupancy --open-mode=append --output=$outfile_search_for_experiments_TF_occupancy --job-name=$seff_name --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=1 --mem-per-cpu=128M --parsable --wrap="seff $myjobid_search_for_experiments_TF_occupancy >> $outfile_search_for_experiments_TF_occupancy")
 
-# exit
+exit
 
 config_file=$(echo "$output_dir""TF_experiments_search_file_1.tsv") #limit of 1000 jobs submitted per batch submission 3 config files to explore all the experiments
-#config_file=$(echo "$output_dir""TF_experiments_search_file_2.tsv")
-#config_file=$(echo "$output_dir""TF_experiments_search_file_3.tsv")
+config_file=$(echo "$output_dir""TF_experiments_search_file_2.tsv")
+config_file=$(echo "$output_dir""TF_experiments_search_file_3.tsv")
 
 
 
@@ -113,10 +114,6 @@ do
       myjobid_seff_search_ChIP_atlas=$(sbatch --dependency=afterany:$myjobid_search_ChIP_atlas --open-mode=append --output=$outfile_search_ChIP_atlas --job-name=$seff_name --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=1 --mem-per-cpu=128M --parsable --wrap="seff $myjobid_search_ChIP_atlas >> $outfile_search_ChIP_atlas
 ")
 
-      exit
-
-
-
       fi #no spaces
     fi #counter > 1
 done < "$config_file"
@@ -126,6 +123,7 @@ exit
 
 ####################################################################################################################
 
+#$ cat TF_experiments_search_file_1.tsv TF_experiments_search_file_2.tsv TF_experiments_search_file_3.tsv > TF_experiments_search_file.tsv
 #$ cut -f1 TF_experiments_search_file.tsv|sort|uniq -c|sort -rg|awk -F" " '{print $2}' > ENSG_file.txt
 
 
@@ -195,7 +193,9 @@ done < "$ENSG_file"
 
 exit
 
-####################################################################################################################################################################### Match_TF_occupancy
+####################### Peaks are in hg19 liftOver
+####################### Peaks are in hg19 liftOver
+####################### Peaks are in hg19 liftOver
 
 type=$(echo "Match_TF_occupancy")
 outfile_Match_TF_occupancy=$(echo "$Log_files""outfile_2_""$type"".log")
@@ -205,14 +205,14 @@ name_Match_TF_occupancy=$(echo "$type""_job")
 seff_name=$(echo "seff""_""$type")
 
 
-Rscript_Match_TF_occupancy=$(echo "$Rscripts_path""342_MPRA_bc_cloned_collapse.R")
+Rscript_Match_TF_occupancy=$(echo "$Rscripts_path""431_TF_motif_classification_of_variants.R")
  
  
-TF_motif_prediction_MPRA=$(echo "/group/soranzo/manuel.tardaguila/MPRA_explore_results/TF_motif_analysis/""TF_motif_prediction_MPRA.bed")
-indir_chip_atlas_search_results=$(echo "/group/soranzo/manuel.tardaguila/MPRA_explore_results/TF_motif_analysis/TF_occupancy_filter/Search_result/")
-TF_motifs_with_an_experimental_HIT=$(echo "/group/soranzo/manuel.tardaguila/MPRA_explore_results/TF_motif_analysis/TF_occupancy_filter/TF_motifs_supported_by_chipseq.tsv")
-Final_table_TF_motif_prediction=$(echo "/group/soranzo/manuel.tardaguila/MPRA_explore_results/TF_motif_analysis/Final_table_TF_motif_prediction_MPRA.tsv")
-out2=$(echo "/group/soranzo/manuel.tardaguila/MPRA_explore_results/TF_motif_analysis/")
 
-myjobid_Match_TF_occupancy=$(sbatch --output=$outfile_Match_TF_occupancy --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=4 --mem-per-cpu=1024 --parsable --job-name $name_Match_TF_occupancy --wrap="Rscript $Rscript_Match_TF_occupancy --TF_motif_prediction_MPRA $TF_motif_prediction_MPRA --indir_chip_atlas_search_results $indir_chip_atlas_search_results --TF_motifs_with_an_experimental_HIT $TF_motifs_with_an_experimental_HIT --Final_table_TF_motif_prediction $Final_table_TF_motif_prediction --type $type --out $output_dir --out2 $out2")
+indir_chip_atlas_search_results=$(echo "$Search_result""")
+TF_motifs_with_an_experimental_HIT=$(echo "$output_dir""TF_motifs_supported_by_chipseq.tsv")
+Final_table_TF_motif_prediction=$(echo "/group/soranzo/manuel.tardaguila/CH/TF_motif_analysis/Final_table_TF_motif_prediction.tsv")
+out2=$(echo "/group/soranzo/manuel.tardaguila/CH/TF_motif_analysis/")
+
+myjobid_Match_TF_occupancy=$(sbatch --output=$outfile_Match_TF_occupancy --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=4 --mem-per-cpu=1024 --parsable --job-name $name_Match_TF_occupancy --wrap="Rscript $Rscript_Match_TF_occupancy --TF_motif_prediction $TF_motif_prediction --indir_chip_atlas_search_results $indir_chip_atlas_search_results --TF_motifs_with_an_experimental_HIT $TF_motifs_with_an_experimental_HIT --Final_table_TF_motif_prediction $Final_table_TF_motif_prediction --type $type --out $output_dir --out2 $out2")
 myjobid_seff_Match_TF_occupancy=$(sbatch --dependency=afterany:$myjobid_Match_TF_occupancy --open-mode=append --output=$outfile_Match_TF_occupancy --job-name=$seff_name --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=1 --mem-per-cpu=128M --parsable --wrap="seff $myjobid_Match_TF_occupancy >> $outfile_Match_TF_occupancy")
