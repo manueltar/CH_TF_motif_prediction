@@ -19,6 +19,8 @@ suppressMessages(library("ggeasy", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-
 suppressMessages(library("sandwich", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
 suppressMessages(library("digest", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
 suppressMessages(library("tidyverse", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
+suppressMessages(library("org.Hs.eg.db", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
+suppressMessages(library("splitstackshape", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
 suppressMessages(library("BiocGenerics", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
 suppressMessages(library("S4Vectors", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
 suppressMessages(library("IRanges", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
@@ -30,12 +32,13 @@ suppressMessages(library("GO.db", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-l
 suppressMessages(library("org.Hs.eg.db", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
 suppressMessages(library("TxDb.Hsapiens.UCSC.hg19.knownGene", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
 suppressMessages(library("rtracklayer", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
+suppressMessages(library("liftOver", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
 
 opt = NULL
 
 options(warn = 1)
 
-data_wrangling = function(option_list)
+collect = function(option_list)
 {
   opt_in = option_list
   opt <<- option_list
@@ -51,7 +54,6 @@ data_wrangling = function(option_list)
   cat("TYPE_\n")
   cat(sprintf(as.character(type)))
   cat("\n")
-
   
   #### READ and transform out ----
   
@@ -61,76 +63,138 @@ data_wrangling = function(option_list)
   cat(sprintf(as.character(out)))
   cat("\n")
   
-  #### READ and transform upstream_span ----
+  #### READ and transform table_sel ----
   
-  upstream_span = opt$upstream_span
+  table_sel = opt$table_sel
   
-  cat("upstream_span_\n")
-  cat(sprintf(as.character(upstream_span)))
-  cat("\n")
-  
-  #### READ and transform downstream_span ----
-  
-  downstream_span = opt$downstream_span
-  
-  cat("downstream_span_\n")
-  cat(sprintf(as.character(downstream_span)))
-  cat("\n")
-  
-  #### READ michelas_table ----
-  
-  michelas_table<-as.data.frame(fread(file=opt$michelas_table, sep="\t", header=T), stringsAsFactors=F)
-  
-  
-  cat("michelas_table_0\n")
-  cat(str(michelas_table))
-  cat("\n")
-  cat(str(unique(michelas_table$chr_position_ref_alt)))
+  cat("table_sel_\n")
+  cat(sprintf(as.character(table_sel)))
   cat("\n")
  
-  michelas_table$chr<-paste('chr',gsub("_.+$","",michelas_table$chr_position_ref_alt), sep='')
-  michelas_table$pos38<-as.integer(michelas_table$position)
-  michelas_table$ref<-gsub("^[^_]+_[^_]+_","",michelas_table$chr_position_ref_alt)
-  michelas_table$ref<-gsub("_.+$","",michelas_table$ref)
-  michelas_table$alt<-gsub("^[^_]+_[^_]+_[^_]+_","",michelas_table$chr_position_ref_alt)
-  michelas_table$VAR_38<-paste(michelas_table$chr,michelas_table$pos38,michelas_table$ref,michelas_table$alt, sep='_')
+  #### READ input_REF ----
+  
+  input_REF<-as.data.frame(fread(file=opt$input_REF, sep="\t", header=T), stringsAsFactors=F)
 
-  cat("michelas_table_1\n")
-  cat(str(michelas_table))
+  cat("input_REF_0\n")
+  cat(str(input_REF))
   cat("\n")
-  cat(str(unique(michelas_table$chr)))
+ 
+  
+  #### READ input_ALT ----
+  
+  input_ALT<-as.data.frame(fread(file=opt$input_ALT, sep="\t", header=T), stringsAsFactors=F)
+
+  cat("input_ALT_0\n")
+  cat(str(input_ALT))
   cat("\n")
-  cat(str(unique(michelas_table$pos38)))
-  cat("\n")
-  cat(str(unique(michelas_table$ref)))
-  cat("\n")
-  cat(str(unique(michelas_table$alt)))
-  cat("\n")
-  cat(str(unique(michelas_table$VAR_38)))
+ 
+  
+  
+  #### Merge all ----
+  
+  ALL_df<-rbind(input_REF,input_ALT)
+  
+  ALL_df<-ALL_df[order(ALL_df$query_region,ALL_df$score),]
+  
+  cat("ALL_df_0\n")
+  cat(str(ALL_df))
   cat("\n")
   
-  #### GR object ----
+ 
   
-  gr_VARs <- GRanges(
-    seqnames = as.character(michelas_table$chr),
-    strand='+',
-    ranges=IRanges(
-      start=michelas_table$pos38-upstream_span,
-      end=michelas_table$pos38+downstream_span,
-      names=paste(michelas_table$rsid, michelas_table$VAR_38, sep = "__")))
   
-  cat("gr_VARs_0\n")
-  cat(str(gr_VARs))
+  ##### ALL_df subset -----
+  
+  ALL_df_subset<-unique(ALL_df[,which(colnames(ALL_df)%in%c('chr','motif_start','motif_end','ensembl_gene_id'))])
+  
+  
+  cat("ALL_df_subset_0\n")
+  cat(str(ALL_df_subset))
   cat("\n")
   
- #### export bed ----
+  
+  
+  #### bed file ,I DON'T TRUST export.bed ----
+  
+  
+  Bed_df<-ALL_df_subset
+  colnames(Bed_df)[which(colnames(Bed_df) == 'ensembl_gene_id')]<-'name'
+  
+  indx.reorder<-c(which(colnames(Bed_df) == 'chr'),
+                  which(colnames(Bed_df) == 'motif_start'),
+                  which(colnames(Bed_df) == 'motif_end'),
+                  which(colnames(Bed_df) == 'name'))
+  
+  cat("indx.reorder_0\n")
+  cat(str(indx.reorder))
+  cat("\n")
+  cat(sprintf(as.character(indx.reorder)))
+  cat("\n")
+  
+  Bed_df<-Bed_df[,indx.reorder]
+  
+  cat("Bed_df_0\n")
+  cat(str(Bed_df))
+  cat("\n")
+  
+  Bed_df$chr<-factor(Bed_df$chr,levels=c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11",
+                                                 "chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19","chr20","chr21",
+                                                 "chr22","chr23","chrX","chrY"), ordered=T)
+  
+  
+  Bed_df<-Bed_df[order(Bed_df$chr,Bed_df$motif_start, decreasing = F),]
+  
+  
+  cat("Bed_df_1\n")
+  cat(str(Bed_df))
+  cat("\n")
+  
+  #### order the bedfile
+  
+  
+  ##### select all the possible TFs in my file -----
+  
+  names_subset<-as.data.frame(unique(ALL_df[!is.na(ALL_df$ensembl_gene_id),c(which(colnames(ALL_df) == 'ensembl_gene_id'))]), stringsAsFactors=F)
+  colnames(names_subset)<-'ensembl_gene_id'
+  
+  cat("names_subset_0\n")
+  cat(str(names_subset))
+  cat("\n")
+  
+ 
+  
+  multiVals <- function(x) paste(x,collapse=";")
+  
+  
+  names_subset$Symbol <- mapIds(org.Hs.eg.db, keys=names_subset$ensembl_gene_id, keytype="ENSEMBL",
+                            column="SYMBOL", multiVals=multiVals)
+  
+  cat("names_subset_1\n")
+  cat(str(names_subset))
+  cat("\n")
+  
+  names_subset_long<-unique(as.data.frame(cSplit(names_subset,sep = ';', direction = "long",splitCols = "Symbol"),stringsAsFactors=F))
+  
+  cat("names_subset_long_0\n")
+  cat(str(names_subset_long))
+  cat("\n")
+  
+  
+  ############# SAVE ---------------------------
   
   setwd(out)
   
-  export.bed(gr_VARs,con='VARS.bed')
+  # export.bed(gr_ALL_df,con='TF_motif_prediction_.bed') #### I DON'T TRUST export.bed
   
-  
+  write.table(Bed_df, file=paste('TF_motif_prediction_',table_sel,".bed",sep=''), sep="\t", quote=F, row.names = F, col.names = F)
+  write.table(ALL_df, file=paste('Final_table_TF_motif_prediction_',table_sel,".tsv",sep=''), sep="\t", quote=F, row.names = F)
+  write.table(names_subset_long, file=paste('List_of_TFs_for_occupancy_',table_sel,".tsv",sep=''), sep="\t", quote=F, row.names = F)
 }
+
+
+
+
+
 
 
 printList = function(l, prefix = "    ") {
@@ -149,13 +213,22 @@ main = function() {
             paste(cmd_line[6:length(cmd_line)], collapse = " "),
             "\n\n"))
   option_list <- list(
-    make_option(c("--michelas_table"), type="character", default=NULL, 
+    make_option(c("--motifs_collected"), type="character", default=NULL, 
                 metavar="type", 
                 help="Path to tab-separated input file listing regions to analyze. Required."),
-    make_option(c("--upstream_span"), type="numeric", default=NULL, 
+    make_option(c("--table_sel"), type="character", default=NULL, 
                 metavar="type", 
                 help="Path to tab-separated input file listing regions to analyze. Required."),
-    make_option(c("--downstream_span"), type="numeric", default=NULL, 
+    make_option(c("--input_REF"), type="character", default=NULL, 
+                metavar="type", 
+                help="Path to tab-separated input file listing regions to analyze. Required."),
+    make_option(c("--input_ALT"), type="character", default=NULL, 
+                metavar="type", 
+                help="Path to tab-separated input file listing regions to analyze. Required."),
+    make_option(c("--spanning_of_motif"), type="numeric", default=NULL, 
+                metavar="type", 
+                help="Path to tab-separated input file listing regions to analyze. Required."),
+    make_option(c("--allele"), type="numeric", default=NULL, 
                 metavar="type", 
                 help="Path to tab-separated input file listing regions to analyze. Required."),
     make_option(c("--type"), type="character", default=NULL, 
@@ -175,8 +248,9 @@ main = function() {
                         option_list = option_list)
   opt <<- parse_args(parser)
   
-  data_wrangling(opt)
-  
+  collect(opt)
+
+
   
 }
 

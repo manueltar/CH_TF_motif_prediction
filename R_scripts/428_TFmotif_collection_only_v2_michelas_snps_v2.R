@@ -52,6 +52,14 @@ collect = function(option_list)
   cat(sprintf(as.character(out)))
   cat("\n")
   
+  #### READ and transform table_sel ----
+  
+  table_sel = opt$table_sel
+  
+  cat("table_sel_\n")
+  cat(sprintf(as.character(table_sel)))
+  cat("\n")
+  
   #### READ and transform allele ----
   
   allele = opt$allele
@@ -373,6 +381,9 @@ main = function() {
             paste(cmd_line[6:length(cmd_line)], collapse = " "),
             "\n\n"))
   option_list <- list(
+    make_option(c("--table_sel"), type="character", default=NULL, 
+                metavar="type", 
+                help="Path to tab-separated input file listing regions to analyze. Required."),
     make_option(c("--motifs_collected"), type="character", default=NULL, 
                 metavar="type", 
                 help="Path to tab-separated input file listing regions to analyze. Required."),

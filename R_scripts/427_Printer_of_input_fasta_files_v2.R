@@ -66,6 +66,14 @@ data_wrangling = function(option_list)
   cat(sprintf(as.character(out)))
   cat("\n")
   
+  #### READ and transform table_sel ----
+  
+  table_sel = opt$table_sel
+  
+  cat("table_sel_\n")
+  cat(sprintf(as.character(table_sel)))
+  cat("\n")
+  
   #### READ and transform upstream_span ----
   
   upstream_span = opt$upstream_span
@@ -171,11 +179,11 @@ data_wrangling = function(option_list)
   
   write.fasta(as.list(input_bed$REF_version), 
               paste(input_bed$rs,input_bed$VAR_38, sep='|'), 
-              paste('TF_search_REF_Allele','.fasta',sep=''), open = "w", nbchar = 100, as.string = FALSE)
+              paste('TF_search_REF_Allele_',table_sel,'.fasta',sep=''), open = "w", nbchar = 100, as.string = FALSE)
   
   write.fasta(as.list(input_bed$ALT_version), 
               paste(input_bed$rs,input_bed$VAR_38, sep='|'), 
-              paste('TF_search_ALT_Allele','.fasta',sep=''), open = "w", nbchar = 100, as.string = FALSE)
+              paste('TF_search_ALT_Allele_',table_sel,'.fasta',sep=''), open = "w", nbchar = 100, as.string = FALSE)
   
   
  
@@ -210,6 +218,9 @@ main = function() {
                 metavar="type", 
                 help="Path to tab-separated input file listing regions to analyze. Required."),
     make_option(c("--downstream_span"), type="numeric", default=NULL, 
+                metavar="type", 
+                help="Path to tab-separated input file listing regions to analyze. Required."),
+    make_option(c("--table_sel"), type="character", default=NULL, 
                 metavar="type", 
                 help="Path to tab-separated input file listing regions to analyze. Required."),
     make_option(c("--type"), type="character", default=NULL, 
