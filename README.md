@@ -10,5 +10,5 @@ $ wget https://chip-atlas.dbcls.jp/data/hg19/allPeaks_light/allPeaks_light.hg19.
 
 2. Run
 
-$ nohup bash ~/Scripts/Wraper_scripts/141_TF_occupancy.sh /group/soranzo/manuel.tardaguila/CH/TF_motif_analysis/ TF_occupancy_filter /group/soranzo/manuel.tardaguila/CH/TF_motif_analysis/List_of_TFs_for_occupancy.tsv &
+$ nohup bash ~/Scripts/Wraper_scripts/141_TF_occupancy.sh /group/soranzo/manuel.tardaguila/CH/TF_motif_analysis/ TF_occupancy_filter &
 
