@@ -66,14 +66,23 @@ data_wrangling = function(option_list)
   cat(sprintf(as.character(out)))
   cat("\n")
   
-  #### READ and transform GWAS_file ----
+ 
   
-  GWAS_file = as.data.frame(fread(file=opt$GWAS_file, sep="\t", header=T), stringsAsFactors=F)
+  #### READ and transform upstream_span ----
   
-  cat("GWAS_file_0\n")
-  cat(str(GWAS_file))
+  upstream_span = opt$upstream_span
+  
+  cat("upstream_span_\n")
+  cat(sprintf(as.character(upstream_span)))
   cat("\n")
-
+  
+  #### READ and transform downstream_span ----
+  
+  downstream_span = opt$downstream_span
+  
+  cat("downstream_span_\n")
+  cat(sprintf(as.character(downstream_span)))
+  cat("\n")
   
   #### READ input_bed ----
   
@@ -84,12 +93,11 @@ data_wrangling = function(option_list)
   cat(str(input_bed))
   cat("\n")
  
-  input_bed$snp<-gsub("__.+$","",input_bed$name)
-  input_bed$tag<-gsub("^[^__]+__","",input_bed$name)
-  input_bed$tag<-gsub("__.+$","",input_bed$tag)
-  input_bed$rsid<-gsub("^[^__]+__","",input_bed$name)
-  input_bed$rsid<-gsub(paste(unique(input_bed$tag), collapse="|"),"",input_bed$rsid)
-  input_bed$rsid<-gsub("^__","",input_bed$rsid)
+  input_bed$rs<-gsub("__.+$","",input_bed$name)
+  input_bed$VAR_38<-gsub("^[^__]+__","",input_bed$name)
+  input_bed$ref<-gsub("^[^_]+_[^_]+_","",input_bed$VAR_38)
+  input_bed$ref<-gsub("_.+$","",input_bed$ref)
+  input_bed$alt<-gsub("^[^_]+_[^_]+_[^_]+_","",input_bed$VAR_38)
   
   cat("input_bed_1\n")
   cat(str(input_bed))
@@ -99,8 +107,8 @@ data_wrangling = function(option_list)
   
   fastaFile<-readDNAStringSet(file = opt$input_fasta)
   seq_name = names(fastaFile)
-  ref = paste(fastaFile)
-  df_fasta <- data.frame(seq_name, ref)
+  sequence = paste(fastaFile)
+  df_fasta <- data.frame(seq_name, sequence)
   
   cat("df_fasta_0\n")
   cat(str(df_fasta))
@@ -122,57 +130,58 @@ data_wrangling = function(option_list)
                    df_fasta,
                    by=c('chr','start','end'))
   
-  cat("input_bed_POST_merge_with_fasta_ref\n")
+  cat("input_bed_POST_merge\n")
   cat(str(input_bed))
   cat("\n")
   
-  #### Merge with GWAS_file ----
+  #### Substring before and after the SNP ----
   
-  input_bed<-merge(input_bed,
-                   GWAS_file,
-                   by=c('chr','snp','rsid','tag'))
+  input_bed$PRE_SNP<-substr(input_bed$sequence, 1, upstream_span)
+  input_bed$POST_SNP<-substr(input_bed$sequence, upstream_span+1+nchar(input_bed$ref),nchar(input_bed$sequence))
   
-  cat("input_bed_POST_merge_with_GWAS_file\n")
+  cat("input_bed_2\n")
   cat(str(input_bed))
   cat("\n")
   
-  #### Assign ref and alt -----
+  input_bed$REF_version<-paste(input_bed$PRE_SNP,input_bed$ref,input_bed$POST_SNP, sep='')
+  input_bed$ALT_version<-paste(input_bed$PRE_SNP,input_bed$alt,input_bed$POST_SNP, sep='')
+  input_bed$name2<-paste(input_bed$rs)
+  input_bed$name<-paste(input_bed$seq_name,input_bed$name,sep='|')
   
-  input_bed$alt<-NA
-  
-  indx.1<-which(input_bed$a0 == input_bed$ref)
-  
-  input_bed$alt[indx.1]<-input_bed$a1[indx.1]
-  
-  
-  indx.2<-which(input_bed$a1 == input_bed$ref)
-  
-  input_bed$alt[indx.2]<-input_bed$a0[indx.2]
-  
-  
-  cat("POST_ASSIGNATION\n")
+  cat("input_bed_3\n")
   cat(str(input_bed))
   cat("\n")
   
-  FLAG_unassigned<-sum(is.na(input_bed$alt))
   
+  indx.check<-which(input_bed$REF_version != input_bed$sequence)
   
-  cat("FLAG_unassigned_0\n")
-  cat(str(FLAG_unassigned))
+  cat("indx.check_0\n")
+  cat(str(indx.check))
   cat("\n")
   
-  if(FLAG_unassigned >0)
-  {
-    stop("Unassigned alt variants persist\n")
-    
-  }else{
-    
-    setwd(out)
-    
-    write.table(input_bed, file='config_file_assigned_ref_and_alt.tsv', sep="\t",quote=F,row.names=F)
-    
-    
-  }#FLAG_unassigned >0
+  check<-input_bed[indx.check,]
+  
+  cat("check_0\n")
+  cat(str(check))
+  cat("\n")
+  
+  
+
+  ########## SAVE ----------------------------------
+  
+  setwd(out)
+  
+  write.fasta(as.list(input_bed$REF_version), 
+              paste(input_bed$rs,input_bed$VAR_38, sep='|'), 
+              paste('TF_search_REF_Allele','.fasta',sep=''), open = "w", nbchar = 100, as.string = FALSE)
+  
+  write.fasta(as.list(input_bed$ALT_version), 
+              paste(input_bed$rs,input_bed$VAR_38, sep='|'), 
+              paste('TF_search_ALT_Allele','.fasta',sep=''), open = "w", nbchar = 100, as.string = FALSE)
+  
+  
+ 
+  
   
 }
 
@@ -199,7 +208,10 @@ main = function() {
     make_option(c("--input_fasta"), type="character", default=NULL, 
                 metavar="type", 
                 help="Path to tab-separated input file listing regions to analyze. Required."),
-    make_option(c("--GWAS_file"), type="character", default=NULL, 
+    make_option(c("--upstream_span"), type="numeric", default=NULL, 
+                metavar="type", 
+                help="Path to tab-separated input file listing regions to analyze. Required."),
+    make_option(c("--downstream_span"), type="numeric", default=NULL, 
                 metavar="type", 
                 help="Path to tab-separated input file listing regions to analyze. Required."),
     make_option(c("--type"), type="character", default=NULL, 

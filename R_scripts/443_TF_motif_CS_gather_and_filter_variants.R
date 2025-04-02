@@ -395,17 +395,17 @@ export_config_file = function(option_list)
     
     if(max_char > 1){
       
-      tmp<-as.data.frame(cbind(Results_sel$snp, Results_sel$chr, Results_sel$pos,Results_sel$a0,Results_sel$a1, 1, "for_possible_insertion"))
+      tmp<-as.data.frame(cbind(Results_sel$snp,Results_sel$rsid, Results_sel$chr, Results_sel$pos,Results_sel$a0,Results_sel$a1, 1, "for_possible_insertion"))
       
-      colnames(tmp)<-c("snp","chr","pos","a0","a1","length","tag")
+      colnames(tmp)<-c("snp",'rsid',"chr","pos","a0","a1","length","tag")
       
       config_df<-rbind(tmp, config_df)
       
       }#max_char > 1
     
-    tmp<-as.data.frame(cbind(Results_sel$snp, Results_sel$chr, Results_sel$pos,Results_sel$a0,Results_sel$a1, max_char, "check_first"))
+    tmp<-as.data.frame(cbind(Results_sel$snp,Results_sel$rsid, Results_sel$chr, Results_sel$pos,Results_sel$a0,Results_sel$a1, max_char, "check_first"))
     
-    colnames(tmp)<-c("snp","chr","pos","a0","a1","length","tag")
+    colnames(tmp)<-c("snp",'rsid',"chr","pos","a0","a1","length","tag")
     
     config_df<-rbind(tmp, config_df)
     
@@ -436,7 +436,7 @@ export_config_file = function(option_list)
     ranges=IRanges(
       start=config_df$pos,
       end=config_df$pos+config_df$length_adjusted,
-      names=paste(config_df$snp, config_df$tag, sep = "__")))
+      names=paste(config_df$snp, config_df$tag, config_df$rsid, sep = "__")))
   
   cat("gr_VARs_0\n")
   cat(str(gr_VARs))

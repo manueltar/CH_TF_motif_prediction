@@ -30,11 +30,6 @@ suppressMessages(library("GO.db", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-l
 suppressMessages(library("org.Hs.eg.db", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
 suppressMessages(library("TxDb.Hsapiens.UCSC.hg19.knownGene", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
 suppressMessages(library("rtracklayer", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
-suppressMessages(library("ggrepel", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
-suppressMessages(library("RColorBrewer", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
-suppressMessages(library("svglite", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
-suppressMessages(library("Biostrings", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
-suppressMessages(library("seqinr", lib.loc="/home/manuel.tardaguila/R/x86_64-pc-linux-gnu-library/4.1/"))
 
 opt = NULL
 
@@ -66,113 +61,67 @@ data_wrangling = function(option_list)
   cat(sprintf(as.character(out)))
   cat("\n")
   
-  #### READ and transform GWAS_file ----
+  #### READ and transform upstream_span ----
   
-  GWAS_file = as.data.frame(fread(file=opt$GWAS_file, sep="\t", header=T), stringsAsFactors=F)
+  upstream_span = opt$upstream_span
   
-  cat("GWAS_file_0\n")
-  cat(str(GWAS_file))
+  cat("upstream_span_\n")
+  cat(sprintf(as.character(upstream_span)))
   cat("\n")
+  
+  #### READ and transform downstream_span ----
+  
+  downstream_span = opt$downstream_span
+  
+  cat("downstream_span_\n")
+  cat(sprintf(as.character(downstream_span)))
+  cat("\n")
+  
+  #### READ CS_table ----
+  
+  CS_table<-as.data.frame(fread(file=opt$CS_table, sep="\t", header=T), stringsAsFactors=F)
+  
+  
+  cat("CS_table_0\n")
+  cat(str(CS_table))
+  cat("\n")
+  cat(str(unique(CS_table$snp)))
+  cat("\n")
+ 
+  CS_table$VAR_38<-paste(CS_table$chr,CS_table$pos,CS_table$ref,CS_table$alt, sep='_')
 
-  
-  #### READ input_bed ----
-  
-  input_bed<-as.data.frame(fread(file=opt$input_bed, sep="\t", header=F), stringsAsFactors=F)
-  colnames(input_bed)<-c('chr','start','end','name','score','strand')
- 
-  cat("input_bed_0\n")
-  cat(str(input_bed))
+  cat("CS_table_1\n")
+  cat(str(CS_table))
   cat("\n")
- 
-  input_bed$snp<-gsub("__.+$","",input_bed$name)
-  input_bed$tag<-gsub("^[^__]+__","",input_bed$name)
-  input_bed$tag<-gsub("__.+$","",input_bed$tag)
-  input_bed$rsid<-gsub("^[^__]+__","",input_bed$name)
-  input_bed$rsid<-gsub(paste(unique(input_bed$tag), collapse="|"),"",input_bed$rsid)
-  input_bed$rsid<-gsub("^__","",input_bed$rsid)
-  
-  cat("input_bed_1\n")
-  cat(str(input_bed))
+  cat(str(unique(CS_table$chr)))
+  cat("\n")
+  cat(str(unique(CS_table$ref)))
+  cat("\n")
+  cat(str(unique(CS_table$alt)))
+  cat("\n")
+  cat(str(unique(CS_table$VAR_38)))
   cat("\n")
   
-  #### READ fastaFile ----
+  #### GR object ----
   
-  fastaFile<-readDNAStringSet(file = opt$input_fasta)
-  seq_name = names(fastaFile)
-  ref = paste(fastaFile)
-  df_fasta <- data.frame(seq_name, ref)
+  gr_VARs <- GRanges(
+    seqnames = as.character(CS_table$chr),
+    strand='+',
+    ranges=IRanges(
+      start=CS_table$pos-upstream_span,
+      end=CS_table$pos+downstream_span,
+      names=paste(CS_table$rsid, CS_table$VAR_38, sep = "__")))
   
-  cat("df_fasta_0\n")
-  cat(str(df_fasta))
+  cat("gr_VARs_0\n")
+  cat(str(gr_VARs))
   cat("\n")
   
-  df_fasta$seq_name<-gsub("^>","",df_fasta$seq_name)
-  df_fasta$chr<-gsub(":.+$","",df_fasta$seq_name)
-  df_fasta$start<-gsub("^[^:]+:","",df_fasta$seq_name)
-  df_fasta$start<-gsub("-.+$","",df_fasta$start)
-  df_fasta$end<-gsub("^[^:]+:[0-9]+-","",df_fasta$seq_name)
+ #### export bed ----
   
-  cat("df_fasta_1\n")
-  cat(str(df_fasta))
-  cat("\n")
+  setwd(out)
   
-  #### Merge fasta with bed ----
+  export.bed(gr_VARs,con='VARS.bed')
   
-  input_bed<-merge(input_bed,
-                   df_fasta,
-                   by=c('chr','start','end'))
-  
-  cat("input_bed_POST_merge_with_fasta_ref\n")
-  cat(str(input_bed))
-  cat("\n")
-  
-  #### Merge with GWAS_file ----
-  
-  input_bed<-merge(input_bed,
-                   GWAS_file,
-                   by=c('chr','snp','rsid','tag'))
-  
-  cat("input_bed_POST_merge_with_GWAS_file\n")
-  cat(str(input_bed))
-  cat("\n")
-  
-  #### Assign ref and alt -----
-  
-  input_bed$alt<-NA
-  
-  indx.1<-which(input_bed$a0 == input_bed$ref)
-  
-  input_bed$alt[indx.1]<-input_bed$a1[indx.1]
-  
-  
-  indx.2<-which(input_bed$a1 == input_bed$ref)
-  
-  input_bed$alt[indx.2]<-input_bed$a0[indx.2]
-  
-  
-  cat("POST_ASSIGNATION\n")
-  cat(str(input_bed))
-  cat("\n")
-  
-  FLAG_unassigned<-sum(is.na(input_bed$alt))
-  
-  
-  cat("FLAG_unassigned_0\n")
-  cat(str(FLAG_unassigned))
-  cat("\n")
-  
-  if(FLAG_unassigned >0)
-  {
-    stop("Unassigned alt variants persist\n")
-    
-  }else{
-    
-    setwd(out)
-    
-    write.table(input_bed, file='config_file_assigned_ref_and_alt.tsv', sep="\t",quote=F,row.names=F)
-    
-    
-  }#FLAG_unassigned >0
   
 }
 
@@ -193,13 +142,13 @@ main = function() {
             paste(cmd_line[6:length(cmd_line)], collapse = " "),
             "\n\n"))
   option_list <- list(
-    make_option(c("--input_bed"), type="character", default=NULL, 
+    make_option(c("--CS_table"), type="character", default=NULL, 
                 metavar="type", 
                 help="Path to tab-separated input file listing regions to analyze. Required."),
-    make_option(c("--input_fasta"), type="character", default=NULL, 
+    make_option(c("--upstream_span"), type="numeric", default=NULL, 
                 metavar="type", 
                 help="Path to tab-separated input file listing regions to analyze. Required."),
-    make_option(c("--GWAS_file"), type="character", default=NULL, 
+    make_option(c("--downstream_span"), type="numeric", default=NULL, 
                 metavar="type", 
                 help="Path to tab-separated input file listing regions to analyze. Required."),
     make_option(c("--type"), type="character", default=NULL, 
