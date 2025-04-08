@@ -33,6 +33,7 @@ seff_name=$(echo "seff""_""$type")
 Rscript_Gather_and_filter=$(echo "$Rscripts_path""443_TF_motif_CS_gather_and_filter_variants.R")
 indir=$(echo "/group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/")
 Threshold_PP=$(echo '0.001')
+Threshold_PP=$(echo '0')
 GWAS_equivalence=$(echo "/group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/hcoloc_submission_table_CHIP.tsv")
 
 myjobid_Gather_and_filter=$(sbatch --job-name=$name_Gather_and_filter --output=$outfile_Gather_and_filter --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=2 --mem-per-cpu=1024M --parsable --wrap="Rscript $Rscript_Gather_and_filter --indir $indir --Threshold_PP $Threshold_PP --GWAS_equivalence $GWAS_equivalence --type $type --out $output_dir")

@@ -118,9 +118,9 @@ data_wrangling = function(option_list)
   
   #### Merge fasta with bed ----
   
-  input_bed<-merge(input_bed,
+  input_bed<-unique(merge(input_bed,
                    df_fasta,
-                   by=c('chr','start','end'))
+                   by=c('chr','start','end')))
   
   cat("input_bed_POST_merge_with_fasta_ref\n")
   cat(str(input_bed))
@@ -128,9 +128,9 @@ data_wrangling = function(option_list)
   
   #### Merge with GWAS_file ----
   
-  input_bed<-merge(input_bed,
+  input_bed<-unique(merge(input_bed,
                    GWAS_file,
-                   by=c('chr','snp','rsid','tag'))
+                   by=c('chr','snp','rsid','tag')))
   
   cat("input_bed_POST_merge_with_GWAS_file\n")
   cat(str(input_bed))
@@ -149,7 +149,7 @@ data_wrangling = function(option_list)
   
   input_bed$alt[indx.2]<-input_bed$a0[indx.2]
   
-  
+
   cat("POST_ASSIGNATION\n")
   cat(str(input_bed))
   cat("\n")
@@ -163,7 +163,45 @@ data_wrangling = function(option_list)
   
   if(FLAG_unassigned >0)
   {
-    stop("Unassigned alt variants persist\n")
+    table_NA<-input_bed[is.na(input_bed$alt),]
+    
+    cat("table_NA_0\n")
+    cat(str(table_NA))
+    cat("\n")
+    
+    
+    input_bed_rest<-input_bed[!is.na(input_bed$alt),]
+    
+    cat("input_bed_rest_0\n")
+    cat(str(input_bed_rest))
+    cat("\n")
+    
+    
+    table_NA_no_leftovers_for_alignment_check<-table_NA[which(table_NA$length > 1 & table_NA$tag != 'check_first'),]
+    
+    cat("table_NA_no_leftovers_for_alignment_check_0\n")
+    cat(str(table_NA_no_leftovers_for_alignment_check))
+    cat("\n")
+    
+    if(dim(table_NA_no_leftovers_for_alignment_check)[1] >0){
+      
+      setwd(out)
+      
+      write.table(input_bed, file='Unassigned_ref_and_alt.tsv', sep="\t",quote=F,row.names=F)
+      
+      stop("Unassigned alt variants persist\n")
+      
+      
+      
+    }else{
+      
+      setwd(out)
+
+      write.table(input_bed_rest, file='config_file_assigned_ref_and_alt.tsv', sep="\t",quote=F,row.names=F)
+      
+      
+    }# dim(table_NA_no_leftovers_for_alignment_check)[1] >0
+    
     
   }else{
     
