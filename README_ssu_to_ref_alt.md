@@ -10,3 +10,10 @@ $ bash ~/Scripts/Wraper_scripts/149_ALL_CS_variants_TF_motif.sh /group/soranzo/m
 # 3 run this to get all the TF motifs
 
 $ bash ~/Scripts/Wraper_scripts/150_TF_motif_prediction_CS.sh /group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/ TF_motif_analysis 15 15
+
+# 4 to get specific breakups of motif, identify TF in REF and TF in ALT of interest and run:
+
+$ bash ~/Scripts/Wraper_scripts/154_Bespoke_TF_break_CH_ALL_CS.sh /group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/ TF_motif_analysis <TF_REF> <TF_ALT>
+
+TF_REF = BCL11A
+TF_ALT = GATA6
