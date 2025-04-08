@@ -268,10 +268,14 @@ data_wrangling = function(option_list)
     cat(str(Results))
     cat("\n")
     
-    array_GWAS_catalogID<-Results$GWAS_catalogID
+    array_GWAS_catalogID<-unique(Results$GWAS_catalogID)
+    
+    cat("array_GWAS_catalogID_0\n")
+    cat(str(array_GWAS_catalogID))
+    cat("\n")
     
     
-    vector_traits<-NULL
+    df_traits<-data.frame()
     
     for(k in 1:length(array_GWAS_catalogID)){
       
@@ -287,15 +291,30 @@ data_wrangling = function(option_list)
       # cat(str(study_retrieved))
       # cat("\n")
       
-      vector_traits[k]<-study_retrieved@studies$reported_trait
+      tmp_df<-cbind(ID_sel,study_retrieved@studies$reported_trait)
+      
+      colnames(tmp_df)<-c("GWAS_catalogID","trait")
+      
+      cat("tmp_df_0\n")
+      cat(str(tmp_df))
+      cat("\n")
+      
+      df_traits<-rbind(tmp_df,df_traits)
       
     }#k in 1:length(array_GWAS_catalogID
     
-    
-    Results$trait<-vector_traits
-    Results<-Results[,-which(colnames(Results) == 'input')]
+    Results<-merge(Results,
+                   df_traits,
+                   by="GWAS_catalogID")
     
     cat("Results_3\n")
+    cat(str(Results))
+    cat("\n")
+    
+
+    Results<-Results[,-which(colnames(Results) == 'input')]
+    
+    cat("Results_4\n")
     cat(str(Results))
     cat("\n")
     
