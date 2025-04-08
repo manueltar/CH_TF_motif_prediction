@@ -99,33 +99,40 @@ collect = function(option_list)
   
   Final_table_TF_motif_prediction_REF<-Final_table_TF_motif_prediction[which(Final_table_TF_motif_prediction$allele == "REF"),]
   
-  cat("Final_table_TF_motif_prediction_REF_0\n")
-  cat(str(Final_table_TF_motif_prediction_REF))
-  cat("\n")
+  # cat("Final_table_TF_motif_prediction_REF_0\n")
+  # cat(str(Final_table_TF_motif_prediction_REF))
+  # cat("\n")
   
   Final_table_TF_motif_prediction_REF_sel<-Final_table_TF_motif_prediction_REF[which(Final_table_TF_motif_prediction_REF$Symbol == TF_REF & Final_table_TF_motif_prediction_REF$Intersect_SNP == "YES"),]
   
   cat("Final_table_TF_motif_prediction_REF_sel_0\n")
   cat(str(Final_table_TF_motif_prediction_REF_sel))
   cat("\n")
+  # cat(sprintf(as.character(unique(Final_table_TF_motif_prediction_REF_sel$VAR_38))))
+  # cat("\n")
   
   
   Final_table_TF_motif_prediction_ALT<-Final_table_TF_motif_prediction[which(Final_table_TF_motif_prediction$allele == "ALT"),]
   
-  cat("Final_table_TF_motif_prediction_ALT_0\n")
-  cat(str(Final_table_TF_motif_prediction_ALT))
-  cat("\n")
+  # cat("Final_table_TF_motif_prediction_ALT_0\n")
+  # cat(str(Final_table_TF_motif_prediction_ALT))
+  # cat("\n")
+  
   
   Final_table_TF_motif_prediction_ALT_sel<-Final_table_TF_motif_prediction_ALT[which(Final_table_TF_motif_prediction_ALT$Symbol == TF_ALT & Final_table_TF_motif_prediction_ALT$Intersect_SNP == "YES"),]
   
   cat("Final_table_TF_motif_prediction_ALT_sel_0\n")
   cat(str(Final_table_TF_motif_prediction_ALT_sel))
   cat("\n")
+  # cat(sprintf(as.character(unique(Final_table_TF_motif_prediction_ALT_sel$VAR_38))))
+  # cat("\n")
   
   Final_table_TF_motif_prediction_ALT_unwanted<-Final_table_TF_motif_prediction_ALT[which(Final_table_TF_motif_prediction_ALT$Symbol == TF_REF & Final_table_TF_motif_prediction_ALT$Intersect_SNP == "YES"),]
   
   cat("Final_table_TF_motif_prediction_ALT_unwanted_0\n")
   cat(str(Final_table_TF_motif_prediction_ALT_unwanted))
+  cat("\n")
+  cat(sprintf(as.character(unique(Final_table_TF_motif_prediction_ALT_unwanted$VAR_38))))
   cat("\n")
   
   
@@ -133,43 +140,72 @@ collect = function(option_list)
   
   indx.1<-which(Final_table_TF_motif_prediction_REF_sel$VAR_38%in%Final_table_TF_motif_prediction_ALT_sel$VAR_38)
   
-  VARS_sel_1<-unique(Final_table_TF_motif_prediction_REF_sel$VAR_38[indx.1])
-  
-  
-  cat("VARS_sel_1_0\n")
-  cat(str(VARS_sel_1))
+  cat("indx.1_0\n")
+  cat(str(indx.1))
   cat("\n")
   
-  indx.2<-which(VARS_sel_1%in%Final_table_TF_motif_prediction_ALT_unwanted$VAR_38)
-  
-  
-  VARS_sel_DEF<-VARS_sel_1[-indx.2]
-  
-  cat("VARS_sel_DEF_0\n")
-  cat(str(VARS_sel_DEF))
-  cat("\n")
-  
-  
-  if(length(VARS_sel_DEF)>0){
+  if(length(indx.1) > 0){
     
-    Final_table_TF_motif_prediction_SET<-Final_table_TF_motif_prediction[which(Final_table_TF_motif_prediction$VAR_38%in%VARS_sel_DEF),]
+    VARS_sel_1<-unique(Final_table_TF_motif_prediction_REF_sel$VAR_38[indx.1])
     
-    cat("Final_table_TF_motif_prediction_SET_0\n")
-    cat(str(Final_table_TF_motif_prediction_SET))
+    
+    cat("VARS_sel_1_0\n")
+    cat(sprintf(as.character(unique(VARS_sel_1))))
     cat("\n")
     
-    Final_table_TF_motif_prediction_SET<-merge(CHIP_variants_file,
-                                                Final_table_TF_motif_prediction_SET,
-                                                by="snp")
-
-    cat("Final_table_TF_motif_prediction_SET_1\n")
-    cat(str(Final_table_TF_motif_prediction_SET))
+    indx.2<-which(VARS_sel_1%in%Final_table_TF_motif_prediction_ALT_unwanted$VAR_38)
+    
+    
+    cat("indx.2_0\n")
+    cat(str(indx.2))
     cat("\n")
     
-    write.table(Final_table_TF_motif_prediction_SET, file=paste('TF_break_selected_',TF_REF,'_',TF_ALT,".tsv",sep=''), sep="\t", quote=F, row.names = F)
+    if(length(indx.2) > 0){
+      
+      VARS_sel_DEF<-VARS_sel_1[-indx.2]
+      
+      
+    }else{
+      
+      
+      VARS_sel_DEF<-VARS_sel_1
+      
+    }#length(indx.2) > 0
     
     
-  }# length(VARS_sel_DEF)>0
+    cat("VARS_sel_DEF_0\n")
+    cat(sprintf(as.character(unique(VARS_sel_DEF))))
+    cat("\n")
+    
+    
+    if(length(VARS_sel_DEF) >0){
+      
+      Final_table_TF_motif_prediction_SET<-Final_table_TF_motif_prediction[which(Final_table_TF_motif_prediction$VAR_38%in%VARS_sel_DEF),]
+      
+      cat("Final_table_TF_motif_prediction_SET_0\n")
+      cat(str(Final_table_TF_motif_prediction_SET))
+      cat("\n")
+      
+      Final_table_TF_motif_prediction_SET<-Final_table_TF_motif_prediction_SET[which(Final_table_TF_motif_prediction_SET$Symbol%in%c(TF_REF,TF_ALT)),]
+      
+      cat("Final_table_TF_motif_prediction_SET_1\n")
+      cat(str(Final_table_TF_motif_prediction_SET))
+      cat("\n")
+      
+      
+      Final_table_TF_motif_prediction_SET<-merge(CHIP_variants_file,
+                                                 Final_table_TF_motif_prediction_SET,
+                                                 by="snp")
+      
+      cat("Final_table_TF_motif_prediction_SET_2\n")
+      cat(str(Final_table_TF_motif_prediction_SET))
+      cat("\n")
+      
+      write.table(Final_table_TF_motif_prediction_SET, file=paste('TF_break_selected_',TF_REF,'_',TF_ALT,".tsv",sep=''), sep="\t", quote=F, row.names = F)
+      
+    }#length(VARS_sel_DEF) >0
+  }#length(indx.1) > 0
+  
   
 }
 
