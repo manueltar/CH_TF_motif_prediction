@@ -103,7 +103,7 @@ collect = function(option_list)
   cat(str(Final_table_TF_motif_prediction_REF))
   cat("\n")
   
-  Final_table_TF_motif_prediction_REF_sel<-Final_table_TF_motif_prediction_REF[which(Final_table_TF_motif_prediction_REF$Symbol == TF_REF),]
+  Final_table_TF_motif_prediction_REF_sel<-Final_table_TF_motif_prediction_REF[which(Final_table_TF_motif_prediction_REF$Symbol == TF_REF & Final_table_TF_motif_prediction_REF$Intersect_SNP == "YES"),]
   
   cat("Final_table_TF_motif_prediction_REF_sel_0\n")
   cat(str(Final_table_TF_motif_prediction_REF_sel))
@@ -116,13 +116,13 @@ collect = function(option_list)
   cat(str(Final_table_TF_motif_prediction_ALT))
   cat("\n")
   
-  Final_table_TF_motif_prediction_ALT_sel<-Final_table_TF_motif_prediction_ALT[which(Final_table_TF_motif_prediction_ALT$Symbol == TF_ALT),]
+  Final_table_TF_motif_prediction_ALT_sel<-Final_table_TF_motif_prediction_ALT[which(Final_table_TF_motif_prediction_ALT$Symbol == TF_ALT & Final_table_TF_motif_prediction_ALT$Intersect_SNP == "YES"),]
   
   cat("Final_table_TF_motif_prediction_ALT_sel_0\n")
   cat(str(Final_table_TF_motif_prediction_ALT_sel))
   cat("\n")
   
-  Final_table_TF_motif_prediction_ALT_unwanted<-Final_table_TF_motif_prediction_ALT[which(Final_table_TF_motif_prediction_ALT$Symbol == TF_REF),]
+  Final_table_TF_motif_prediction_ALT_unwanted<-Final_table_TF_motif_prediction_ALT[which(Final_table_TF_motif_prediction_ALT$Symbol == TF_REF & Final_table_TF_motif_prediction_ALT$Intersect_SNP == "YES"),]
   
   cat("Final_table_TF_motif_prediction_ALT_unwanted_0\n")
   cat(str(Final_table_TF_motif_prediction_ALT_unwanted))
