@@ -143,7 +143,7 @@ data_wrangling = function(option_list)
   cat(str(input_bed))
   cat("\n")
   
-  input_bed$REF_version<-paste(input_bed$PRE_SNP,input_bed$ref,input_bed$POST_SNP, sep='')
+  input_bed$REF_version<-input_bed$sequence
   input_bed$ALT_version<-paste(input_bed$PRE_SNP,input_bed$alt,input_bed$POST_SNP, sep='')
   input_bed$name2<-paste(input_bed$rs)
   input_bed$name<-paste(input_bed$seq_name,input_bed$name,sep='|')
@@ -153,17 +153,17 @@ data_wrangling = function(option_list)
   cat("\n")
   
   
-  indx.check<-which(input_bed$REF_version != input_bed$sequence)
-  
-  cat("indx.check_0\n")
-  cat(str(indx.check))
-  cat("\n")
-  
-  check<-input_bed[indx.check,]
-  
-  cat("check_0\n")
-  cat(str(check))
-  cat("\n")
+  # indx.check<-which(input_bed$REF_version != input_bed$sequence)
+  # 
+  # cat("indx.check_0\n")
+  # cat(str(indx.check))
+  # cat("\n")
+  # 
+  # check<-input_bed[indx.check,]
+  # 
+  # cat("check_0\n")
+  # cat(str(check))
+  # cat("\n")
   
   
 
