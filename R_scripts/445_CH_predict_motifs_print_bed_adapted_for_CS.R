@@ -110,7 +110,7 @@ data_wrangling = function(option_list)
     ranges=IRanges(
       start=CS_table$pos-upstream_span,
       end=CS_table$pos+downstream_span,
-      names=paste(CS_table$rsid, CS_table$VAR_38, sep = "__")))
+      names=paste(CS_table$rsid, CS_table$VAR_38,CS_table$snp, sep = '|')))
   
   cat("gr_VARs_0\n")
   cat(str(gr_VARs))

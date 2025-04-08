@@ -93,8 +93,10 @@ data_wrangling = function(option_list)
   cat(str(input_bed))
   cat("\n")
  
-  input_bed$rs<-gsub("__.+$","",input_bed$name)
-  input_bed$VAR_38<-gsub("^[^__]+__","",input_bed$name)
+  input_bed$rs<-gsub("\\|.+$","",input_bed$name)
+  input_bed$VAR_38<-gsub("^[^\\|]+\\|","",input_bed$name)
+  input_bed$VAR_38<-gsub("\\|.+","",input_bed$VAR_38)
+  input_bed$snp<-gsub("^[^\\|]+\\|[^\\|]+\\|","",input_bed$name)
   input_bed$ref<-gsub("^[^_]+_[^_]+_","",input_bed$VAR_38)
   input_bed$ref<-gsub("_.+$","",input_bed$ref)
   input_bed$alt<-gsub("^[^_]+_[^_]+_[^_]+_","",input_bed$VAR_38)
@@ -145,7 +147,7 @@ data_wrangling = function(option_list)
   
   input_bed$REF_version<-input_bed$sequence
   input_bed$ALT_version<-paste(input_bed$PRE_SNP,input_bed$alt,input_bed$POST_SNP, sep='')
-  input_bed$name2<-paste(input_bed$rs)
+  input_bed$name2<-input_bed$rs
   input_bed$name<-paste(input_bed$seq_name,input_bed$name,sep='|')
   
   cat("input_bed_3\n")
@@ -172,11 +174,11 @@ data_wrangling = function(option_list)
   setwd(out)
   
   write.fasta(as.list(input_bed$REF_version), 
-              paste(input_bed$rs,input_bed$VAR_38, sep='|'), 
+              paste(input_bed$snp,input_bed$VAR_38, sep='|'), 
               paste('TF_search_REF_Allele','.fasta',sep=''), open = "w", nbchar = 100, as.string = FALSE)
   
   write.fasta(as.list(input_bed$ALT_version), 
-              paste(input_bed$rs,input_bed$VAR_38, sep='|'), 
+              paste(input_bed$snp,input_bed$VAR_38, sep='|'), 
               paste('TF_search_ALT_Allele','.fasta',sep=''), open = "w", nbchar = 100, as.string = FALSE)
   
   
