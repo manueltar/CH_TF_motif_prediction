@@ -17,3 +17,8 @@ $ bash ~/Scripts/Wraper_scripts/154_Bespoke_TF_break_CH_ALL_CS.sh /group/soranzo
 
 TF_REF = BCL11A
 TF_ALT = GATA6
+
+# 5 find overlap with ATAC data with
+
+$ bash ~/Scripts/Wraper_scripts/155_Functional_annotation_intersect_with_ATAC.sh /group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/ ATACseq_analysis
+
