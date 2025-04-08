@@ -154,63 +154,66 @@ data_wrangling = function(option_list)
   cat(str(input_bed))
   cat("\n")
   
-  FLAG_unassigned<-sum(is.na(input_bed$alt))
   
+  #### first select variants in which tag check_first produced a non NA ALT----
   
-  cat("FLAG_unassigned_0\n")
-  cat(str(FLAG_unassigned))
+  input_bed_first<-input_bed[which(input_bed$tag == 'check_first' & !is.na(input_bed$alt)),]
+  
+  cat("input_bed_first_0\n")
+  cat(str(input_bed_first))
   cat("\n")
   
-  if(FLAG_unassigned >0)
+  #### rest of variants ----
+  
+  candidates_for_insertion<-input_bed[-which(input_bed$snp%in%input_bed_first$snp),]
+  
+  cat("candidates_for_insertion_0\n")
+  cat(str(candidates_for_insertion))
+  cat("\n")
+  
+  input_bed_insertions<-candidates_for_insertion[which(candidates_for_insertion$tag == 'for_possible_insertion' & !is.na(candidates_for_insertion$alt)),]
+  
+  cat("input_bed_insertions_0\n")
+  cat(str(input_bed_insertions))
+  cat("\n")
+  
+  
+  Final_set<-rbind(input_bed_first,input_bed_insertions)
+  
+  
+  cat("Final_set_0\n")
+  cat(str(Final_set))
+  cat("\n")
+  
+  
+  df_unassigned<-input_bed[-which(input_bed$snp%in%Final_set$snp),]
+  
+  
+  cat("df_unassigned_0\n")
+  cat(str(df_unassigned))
+  cat("\n")
+  
+  if(dim(df_unassigned)[1] >0)
   {
-    table_NA<-input_bed[is.na(input_bed$alt),]
     
-    cat("table_NA_0\n")
-    cat(str(table_NA))
-    cat("\n")
+    setwd(out)
     
+    write.table(df_unassigned, file='Unassigned_ref_and_alt.tsv', sep="\t",quote=F,row.names=F)
     
-    input_bed_rest<-input_bed[!is.na(input_bed$alt),]
-    
-    cat("input_bed_rest_0\n")
-    cat(str(input_bed_rest))
-    cat("\n")
+    write.table(Final_set, file='config_file_assigned_ref_and_alt.tsv', sep="\t",quote=F,row.names=F)
     
     
-    table_NA_no_leftovers_for_alignment_check<-table_NA[which(table_NA$length > 1 & table_NA$tag != 'check_first'),]
-    
-    cat("table_NA_no_leftovers_for_alignment_check_0\n")
-    cat(str(table_NA_no_leftovers_for_alignment_check))
-    cat("\n")
-    
-    if(dim(table_NA_no_leftovers_for_alignment_check)[1] >0){
-      
-      setwd(out)
-      
-      write.table(input_bed, file='Unassigned_ref_and_alt.tsv', sep="\t",quote=F,row.names=F)
-      
-      stop("Unassigned alt variants persist\n")
-      
-      
-      
-    }else{
-      
-      setwd(out)
-
-      write.table(input_bed_rest, file='config_file_assigned_ref_and_alt.tsv', sep="\t",quote=F,row.names=F)
-      
-      
-    }# dim(table_NA_no_leftovers_for_alignment_check)[1] >0
-    
+    stop("Unassigned alt variants persist\n")
+  
     
   }else{
     
     setwd(out)
     
-    write.table(input_bed, file='config_file_assigned_ref_and_alt.tsv', sep="\t",quote=F,row.names=F)
+    write.table(Final_set, file='config_file_assigned_ref_and_alt.tsv', sep="\t",quote=F,row.names=F)
     
     
-  }#FLAG_unassigned >0
+  }#dim(df_unassigned)[1] >0
   
 }
 
