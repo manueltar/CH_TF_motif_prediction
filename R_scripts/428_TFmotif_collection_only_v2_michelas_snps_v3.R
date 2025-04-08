@@ -211,7 +211,7 @@ collect = function(option_list)
   cat("\n")
   
   
-  colnames(ALL_df_broken2)[which(colnames(ALL_df_broken2) == 'query_region_1')]<-'rsid'
+  colnames(ALL_df_broken2)[which(colnames(ALL_df_broken2) == 'query_region_1')]<-'snp'
   colnames(ALL_df_broken2)[which(colnames(ALL_df_broken2) == 'query_region_2')]<-'VAR_38'
   colnames(ALL_df_broken2)[which(colnames(ALL_df_broken2) == 'query_region_2_1')]<-'chr'
   colnames(ALL_df_broken2)[which(colnames(ALL_df_broken2) == 'query_region_2_2')]<-'pos'

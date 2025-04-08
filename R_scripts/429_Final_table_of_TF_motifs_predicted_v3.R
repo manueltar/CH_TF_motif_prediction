@@ -63,6 +63,14 @@ collect = function(option_list)
   cat(sprintf(as.character(out)))
   cat("\n")
   
+  #### READ CHIP_variants_file ----
+  
+  CHIP_variants_file<-as.data.frame(fread(file=opt$CHIP_variants_file, sep="\t", header=T), stringsAsFactors=F)
+  
+  cat("CHIP_variants_file_0\n")
+  cat(str(CHIP_variants_file))
+  cat("\n")
+  
  
   #### READ input_REF ----
   
@@ -87,14 +95,22 @@ collect = function(option_list)
   
   ALL_df<-rbind(input_REF,input_ALT)
   
-  ALL_df<-ALL_df[order(ALL_df$query_region,ALL_df$score),]
+  ALL_df<-unique(ALL_df[order(ALL_df$query_region,ALL_df$score),])
   
   cat("ALL_df_0\n")
   cat(str(ALL_df))
   cat("\n")
   
  
-  
+  # ##### Merge all df with CHIP_variants_file ------
+  # 
+  # ALL_df<-merge(ALL_df,
+  #               CHIP_variants_file,
+  #               by="snp")
+  # 
+  # cat("ALL_df_1\n")
+  # cat(str(ALL_df))
+  # cat("\n")
   
   ##### ALL_df subset -----
   
@@ -219,6 +235,9 @@ main = function() {
                 metavar="type", 
                 help="Path to tab-separated input file listing regions to analyze. Required."),
     make_option(c("--allele"), type="numeric", default=NULL, 
+                metavar="type", 
+                help="Path to tab-separated input file listing regions to analyze. Required."),
+    make_option(c("--CHIP_variants_file"), type="character", default=NULL, 
                 metavar="type", 
                 help="Path to tab-separated input file listing regions to analyze. Required."),
     make_option(c("--type"), type="character", default=NULL, 

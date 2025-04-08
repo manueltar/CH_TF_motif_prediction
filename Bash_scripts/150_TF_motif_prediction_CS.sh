@@ -17,18 +17,21 @@ output_dir=$(echo "$MASTER_ROUTE""$analysis""/")
 
 Log_files=$(echo "$output_dir""/""Log_files/")
 
+rm -rf $Log_files
+mkdir -p $Log_files
+
 #### print_bed #############################
 
 
 type=$(echo "print_bed""_""$analysis")
-outfile_print_bed=$(echo "$Log_files""outfile_4_""$type"".log")
+outfile_print_bed=$(echo "$Log_files""outfile_1_""$type"".log")
 touch $outfile_print_bed
 echo -n "" > $outfile_print_bed
 name_print_bed=$(echo "$type""_job")
 seff_name=$(echo "seff""_""$type")
 
 Rscript_print_bed=$(echo "$Rscripts_path""445_CH_predict_motifs_print_bed_adapted_for_CS.R")
-CS_table=$(echo "/group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/TF_motif_analysis/config_file_assigned_ref_and_alt.tsv")
+CS_table=$(echo "/group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/config_file_assigned_ref_and_alt.tsv")
 
 
 myjobid_print_bed=$(sbatch --job-name=$name_print_bed --output=$outfile_print_bed --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=2 --mem-per-cpu=1024M --parsable --wrap="Rscript $Rscript_print_bed --CS_table $CS_table --type $type --upstream_span $upstream_span --downstream_span $downstream_span --out $output_dir")
@@ -39,7 +42,7 @@ myjobid_seff_print_bed=$(sbatch --dependency=afterany:$myjobid_print_bed --open-
 
 
 type=$(echo "bedtools_getfasta""_""$analysis")
-outfile_bedtools_getfasta=$(echo "$Log_files""outfile_5_""$type"".log")
+outfile_bedtools_getfasta=$(echo "$Log_files""outfile_2_""$type"".log")
 touch $outfile_bedtools_getfasta
 echo -n "" > $outfile_bedtools_getfasta
 name_bedtools_getfasta=$(echo "$type""_job")
@@ -59,7 +62,7 @@ myjobid_seff_bedtools_getfasta=$(sbatch --dependency=afterany:$myjobid_bedtools_
 
 
 type=$(echo "printer_fasta_files""_""$analysis")
-outfile_printer_fasta_files=$(echo "$Log_files""outfile_6_""$type"".log")
+outfile_printer_fasta_files=$(echo "$Log_files""outfile_3_""$type"".log")
 touch $outfile_printer_fasta_files
 echo -n "" > $outfile_printer_fasta_files
 name_printer_fasta_files=$(echo "$type""_job")
@@ -70,9 +73,12 @@ Rscript_printer_fasta_files=$(echo "$Rscripts_path""427_Printer_of_input_fasta_f
 input_bed=$(echo "$output_dir""VARS"".bed")
 input_fasta=$(echo "$output_dir""intervals"".fasta")
 
+# --dependency=afterany:$myjobid_bedtools_getfasta
 
 myjobid_printer_fasta_files=$(sbatch --dependency=afterany:$myjobid_bedtools_getfasta --job-name=$name_printer_fasta_files --output=$outfile_printer_fasta_files --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=2 --mem-per-cpu=1024M --parsable --wrap="Rscript $Rscript_printer_fasta_files --input_bed $input_bed --input_fasta $input_fasta --upstream_span $upstream_span --downstream_span $downstream_span --type $type --out $output_dir")
 myjobid_seff_printer_fasta_files=$(sbatch --dependency=afterany:$myjobid_printer_fasta_files --open-mode=append --output=$outfile_printer_fasta_files --job-name=$seff_name --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=1 --mem-per-cpu=128M --parsable --wrap="seff $myjobid_printer_fasta_files >> $outfile_printer_fasta_files")
+
+
 
 
 conda activate my_gimme_scan
@@ -91,7 +97,7 @@ do
     #        echo "$reference_TFmotif_collections_sel"
 
     type=$(echo "REF_""$reference_TFmotif_collections_sel""_""gimme_scan")
-    outfile_gimme_scan_REF=$(echo "$Log_files""outfile_7_""$type"".log")
+    outfile_gimme_scan_REF=$(echo "$Log_files""outfile_4_""$type"".log")
     touch $outfile_gimme_scan_REF
     echo -n "" > $outfile_gimme_scan_REF
     name_gimme_scan_REF=$(echo "$type""_job")
@@ -116,7 +122,7 @@ do
     #	echo "$reference_TFmotif_collections_sel"
 
     type=$(echo "ALT_""$reference_TFmotif_collections_sel""_""gimme_scan")
-    outfile_gimme_scan_ALT=$(echo "$Log_files""outfile_8_""$type"".log")
+    outfile_gimme_scan_ALT=$(echo "$Log_files""outfile_5_""$type"".log")
     touch $outfile_gimme_scan_ALT
     echo -n "" > $outfile_gimme_scan_ALT
     name_gimme_scan_ALT=$(echo "$type""_job")
@@ -175,7 +181,7 @@ do
     eval "$(conda shell.bash hook)"
 
     type=$(echo "collect_TF_motif_results""_""$allele_array_sel")
-    outfile_collect_TF_motif_results=$(echo "$Log_files""outfile_9_""$type"".log")
+    outfile_collect_TF_motif_results=$(echo "$Log_files""outfile_6_""$type"".log")
     touch $outfile_collect_TF_motif_results
     echo -n "" > $outfile_collect_TF_motif_results
     name_collect_TF_motif_results=$(echo "$type""_job")
@@ -211,7 +217,7 @@ echo "FINAL: $dependency_string_array"
 eval "$(conda shell.bash hook)"
 
 type=$(echo "final_TF_table")
-outfile_final_TF_table=$(echo "$Log_files""outfile_10_""$type"".log")
+outfile_final_TF_table=$(echo "$Log_files""outfile_7_""$type"".log")
 touch $outfile_final_TF_table
 echo -n "" > $outfile_final_TF_table
 name_final_TF_table=$(echo "$type""_job")
@@ -222,10 +228,11 @@ Rscript_final_TF_table=$(echo "$Rscripts_path""429_Final_table_of_TF_motifs_pred
 
 input_REF=$(echo "$output_dir""collect_TF_motif_results_REF"".tsv")
 input_ALT=$(echo "$output_dir""collect_TF_motif_results_ALT"".tsv")
+CHIP_variants_file=$(echo "/group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/CHIP_variants.tsv")
 
 # $dependency_string_array
 
-myjobid_final_TF_table=$(sbatch $dependency_string_array --job-name=$name_final_TF_table --output=$outfile_final_TF_table --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=4 --mem-per-cpu=4096M --parsable --wrap="Rscript $Rscript_final_TF_table --input_REF $input_REF --input_ALT $input_ALT --type $type --out $output_dir")
+myjobid_final_TF_table=$(sbatch $dependency_string_array --job-name=$name_final_TF_table --output=$outfile_final_TF_table --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=4 --mem-per-cpu=4096M --parsable --wrap="Rscript $Rscript_final_TF_table --input_REF $input_REF --input_ALT $input_ALT --CHIP_variants_file $CHIP_variants_file --type $type --out $output_dir")
 myjobid_seff_final_TF_table=$(sbatch --dependency=afterany:$myjobid_final_TF_table --open-mode=append --output=$outfile_final_TF_table --job-name=$seff_name --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=1 --mem-per-cpu=128M --parsable --wrap="seff $myjobid_final_TF_table >> $outfile_final_TF_table")	
 
 
