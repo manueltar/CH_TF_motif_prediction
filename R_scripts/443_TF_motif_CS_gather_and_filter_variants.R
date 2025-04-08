@@ -213,28 +213,43 @@ data_wrangling = function(option_list)
             cat("\n")
           }
           
+          FM_df_sel<-FM_df[which(FM_df$is_cs == TRUE),]
           
+          if(DEBUG == 1)
+          {
+            cat("FM_df_sel_0\n")
+            cat(str(FM_df_sel))
+            cat("\n")
+          }
           
-          FM_df$LocusID<-LocusID_array_sel
-          FM_df$study_id<-study_id_sel
-          
-          indx.col<-which(colnames(FM_df) == 'SNP.PP')
-          
-          
-          FM_df_filtered<-FM_df[which(FM_df[,indx.col] > Threshold_PP),]
-          
-          if(dim(FM_df_filtered)[1] >0){
+          if(dim(FM_df_sel)[1] >0){
             
-            if(DEBUG == 1)
-            {
-              cat("FM_df_filtered_0\n")
-              cat(str(FM_df_filtered))
-              cat("\n")
-            }
+            FM_df_sel$LocusID<-LocusID_array_sel
+            FM_df_sel$study_id<-study_id_sel
             
-            list_results[[i]]<-FM_df_filtered
+            indx.col<-which(colnames(FM_df_sel) == 'SNP.PP')
             
-          }# dim(FM_df_filtered)[1] >0
+            
+            FM_df_sel_filtered<-FM_df_sel[which(FM_df_sel[,indx.col] > Threshold_PP),]
+            
+            if(dim(FM_df_sel_filtered)[1] >0){
+              
+              if(DEBUG == 1)
+              {
+                cat("FM_df_sel_filtered_0\n")
+                cat(str(FM_df_sel_filtered))
+                cat("\n")
+              }
+              
+              list_results[[i]]<-FM_df_sel_filtered
+              
+            }# dim(FM_df_sel_filtered)[1] >0
+            
+
+            
+          }#dim(FM_df_sel)[1] >0
+          
+         
           
         }#LINE_gate> 0
       }# SIZE_gate> 0
