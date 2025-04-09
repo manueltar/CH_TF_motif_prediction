@@ -68,6 +68,14 @@ intersect_with_ALL = function(option_list)
   cat(sprintf(as.character(out)))
   cat("\n")
   
+  #### READ CHIP_variants_file ----
+  
+  CHIP_variants_file<-as.data.frame(fread(file=opt$CHIP_variants_file, sep="\t", header=T), stringsAsFactors=F)
+  
+  cat("CHIP_variants_file_0\n")
+  cat(str(CHIP_variants_file))
+  cat("\n")
+  
   
   #### Read the Table_of_variants file -----
   
@@ -374,7 +382,7 @@ intersect_with_ALL = function(option_list)
     
     Final_df.m<-merge(Final_df.m,
                       Table_of_variants,
-                      by="VAR_38")
+                      by=c("chr","VAR_38"))
     
     if(DEBUG == 1)
     {
@@ -382,11 +390,30 @@ intersect_with_ALL = function(option_list)
       cat(str(Final_df.m))
       cat("\n")
     }
+    
+    Final_df.m_subset<-Final_df.m[,which(colnames(Final_df.m)%in%c('snp','VAR_38','Peak_start','Peak_end',"cell_type","ATACseq counts"))]
+    
+    if(DEBUG == 1)
+    {
+      cat("Final_df.m_subset_0\n")
+      cat(str(Final_df.m_subset))
+      cat("\n")
+    }
   
+    Final_df.m_subset<-merge(Final_df.m_subset,
+                             CHIP_variants_file,
+                             by="snp")
+    if(DEBUG == 1)
+    {
+      cat("Final_df.m_subset_1\n")
+      cat(str(Final_df.m_subset))
+      cat("\n")
+    }
+    
     setwd(out)  
       
       
-    write.table(Final_df.m, file=paste('ATAC_overlap',".tsv",sep=''), sep="\t", quote=F, row.names = F)
+    write.table(Final_df.m_subset, file=paste('ATAC_overlap',".tsv",sep=''), sep="\t", quote=F, row.names = F)
   
  
   }#dim(ATAC_DEF_df_hits)[1] >0
@@ -419,6 +446,9 @@ main = function() {
                 metavar="type", 
                 help="Path to tab-separated input file listing regions to analyze. Required."),
     make_option(c("--Table_of_variants"), type="character", default=NULL, 
+                metavar="type", 
+                help="Path to tab-separated input file listing regions to analyze. Required."),
+    make_option(c("--CHIP_variants_file"), type="character", default=NULL, 
                 metavar="type", 
                 help="Path to tab-separated input file listing regions to analyze. Required."),
     make_option(c("--type"), type="character", default=NULL, 
