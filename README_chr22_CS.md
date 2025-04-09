@@ -21,7 +21,7 @@ $ bash ~/Scripts/Wraper_scripts/154_Bespoke_TF_break_CH_ALL_CS.sh /group/soranzo
 TF_REF = BCL11A
 TF_ALT = GATA6
 
-# 6 to get TF occupancy from Blood CHIP-studies:
+# 5 to get TF occupancy from Blood CHIP-studies:
 
 Download the peaks file from the ChiP_ATLAS: https://github.com/inutano/chip-atlas/wiki#downloads_doc
 
@@ -31,10 +31,15 @@ and run
 
 $ nohup bash ~/Scripts/Wraper_scripts/156_CHIP_atalas_TF_occupancy_CS.sh /group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/TF_motif_analysis/ TF_occupancy_filter &
 
-# 5 Find overlap with ATAC data with. ATAC-seq data set: (bulk) https://github.com/caleblareau/singlecell_bloodtraits/tree/master/data/bulk/ATAC 29August2017_EJCsamples_allReads_500bp.bed and 29August2017_EJCsamples_allReads_500bp.counts.txt from "Interrogation of human hematopoiesis at single-cell and single-variant resolution" (Ulirsch et al 2019). It is in hg19.
+
+# 6 to add TF ocupancy from ENCODE CHIPseq data (K-562, HL60 and H1hesc cells)
+
+$ bash ~/Scripts/Wraper_scripts/158_ENCODE_occupancy_CS.sh /group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/TF_motif_analysis/ TF_occupancy_filter
+
+# 7 Find overlap with ATAC data with. ATAC-seq data set: (bulk) https://github.com/caleblareau/singlecell_bloodtraits/tree/master/data/bulk/ATAC 29August2017_EJCsamples_allReads_500bp.bed and 29August2017_EJCsamples_allReads_500bp.counts.txt from "Interrogation of human hematopoiesis at single-cell and single-variant resolution" (Ulirsch et al 2019). It is in hg19.
 
 $ bash ~/Scripts/Wraper_scripts/155_Functional_annotation_intersect_with_ATAC.sh /group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/ ATACseq_analysis
 
-# 6 Find overlap with DNase data from ENCODE in K-562, HL60 and H1hesc cells
+# 8 Find overlap with DNase data from ENCODE in K-562, HL60 and H1hesc cells
 
 $ bash ~/Scripts/Wraper_scripts/157_Functional_annotation_intersect_with_DNase.sh /group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/ DNase_ENCODE

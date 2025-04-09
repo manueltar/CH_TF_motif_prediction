@@ -485,6 +485,8 @@ data_wrangling_and_intersect = function(option_list)
                 row.names = F, quote=F, sep="\t")
   }else{
     
+    motif_DEF$ENCODE_chip_seq_experiment_string<-NA
+    
     
     setwd(out2)
     
