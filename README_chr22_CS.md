@@ -43,3 +43,11 @@ $ bash ~/Scripts/Wraper_scripts/155_Functional_annotation_intersect_with_ATAC.sh
 # 8 Find overlap with DNase data from ENCODE in K-562, HL60 and H1hesc cells
 
 $ bash ~/Scripts/Wraper_scripts/157_Functional_annotation_intersect_with_DNase.sh /group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/ DNase_ENCODE
+
+# 9 To find controls in ENCODE CHIP-seq data
+
+$ bash ~/Scripts/Wraper_scripts/159_Find_CHIP_controls_from_ENCODE.sh /group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/ Find_CHIP_controls
+
+# 10 To annotate with AbC scores run:
+
+$ bash ~/Scripts/Wraper_scripts/164_AbC_annotation_michelas_variants.sh /group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/ AbC_scores
