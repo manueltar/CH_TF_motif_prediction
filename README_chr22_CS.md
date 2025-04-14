@@ -51,3 +51,7 @@ $ bash ~/Scripts/Wraper_scripts/159_Find_CHIP_controls_from_ENCODE.sh /group/sor
 # 10 To annotate with AbC scores run:
 
 $ bash ~/Scripts/Wraper_scripts/164_AbC_annotation_michelas_variants.sh /group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/ AbC_scores
+
+# 11 To annotate with Constraint Z run:
+
+$ bash ~/Scripts/Wraper_scripts/165_Constraint_Z_annotation_michelas_variants.sh /group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/ Constraint_Z
