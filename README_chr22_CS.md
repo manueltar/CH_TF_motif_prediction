@@ -55,3 +55,14 @@ $ bash ~/Scripts/Wraper_scripts/164_AbC_annotation_michelas_variants.sh /group/s
 # 11 To annotate with Constraint Z run:
 
 $ bash ~/Scripts/Wraper_scripts/165_Constraint_Z_annotation_michelas_variants.sh /group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/ Constraint_Z
+
+# 12 To run Enformer prediction on sets of 200 variants at a time run
+
+## 12.1 First to prepare the input files
+
+  $ bash ~/Scripts/Wraper_scripts/166_prepare_input_Enformer.sh /group/soranzo/manuel.tardaguila/CH/ALL_variants_in_CS/ Enformer
+
+## 12.2 To run the Enformer prediction (needs GPUs)
+
+  $ sbatch ~/Scripts/sbatch/9_enformer_array_from_Alessandro.sh
+
