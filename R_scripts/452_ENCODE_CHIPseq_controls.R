@@ -194,7 +194,7 @@ data_wrangling_and_intersect = function(option_list)
         
         test<- ENCODE_file_sel_CT_sel_df %>%
           group_by(cell_type,CHIP_factor) %>%
-          top_n(n = 10, wt = score)
+          top_n(n = 50, wt = score)
         
         
 
@@ -205,10 +205,10 @@ data_wrangling_and_intersect = function(option_list)
         
         
         
-        ENCODE_file_sel_CT_sel_df_top10 <- as.data.frame(test, stringsAsFactors=F)
+        ENCODE_file_sel_CT_sel_df_top50 <- as.data.frame(test, stringsAsFactors=F)
         
-        cat("ENCODE_file_sel_CT_sel_df_top10_0\n")
-        str(ENCODE_file_sel_CT_sel_df_top10)
+        cat("ENCODE_file_sel_CT_sel_df_top50_0\n")
+        str(ENCODE_file_sel_CT_sel_df_top50)
         cat("\n")      
         
         
@@ -220,28 +220,28 @@ data_wrangling_and_intersect = function(option_list)
         # 
         # ENCODE_file_sel_CT_sel_df.dt <- data.table(ENCODE_file_sel_CT_sel_df, key = c("cell_type","CHIP_factor"))
         # 
-        # ENCODE_file_sel_CT_sel_df_top10 <- as.data.frame(ENCODE_file_sel_CT_sel_df.dt[ , head(.SD, 10), by = key(ENCODE_file_sel_CT_sel_df.dt)], stringsAsFactors=F)
+        # ENCODE_file_sel_CT_sel_df_top50 <- as.data.frame(ENCODE_file_sel_CT_sel_df.dt[ , head(.SD, 10), by = key(ENCODE_file_sel_CT_sel_df.dt)], stringsAsFactors=F)
         # 
-        # cat("ENCODE_file_sel_CT_sel_df_top10_0\n")
-        # str(ENCODE_file_sel_CT_sel_df_top10)
+        # cat("ENCODE_file_sel_CT_sel_df_top50_0\n")
+        # str(ENCODE_file_sel_CT_sel_df_top50)
         # cat("\n")        
        
         
         setwd(out)
         
-        write.table(ENCODE_file_sel_CT_sel_df_top10, 
-                    file=paste("ENCODE_top10_controls_",paste(TF_to_search,collapse="_" ),".tsv",sep=""), 
+        write.table(ENCODE_file_sel_CT_sel_df_top50, 
+                    file=paste("ENCODE_top50_controls_",paste(TF_to_search,collapse="_" ),".tsv",sep=""), 
                     row.names = F, quote=F, sep="\t")
         
         #### GR object ----
         
         gr_controls <- GRanges(
-          seqnames = as.character(michelas_table$chr),
+          seqnames = as.character(ENCODE_file_sel_CT_sel_df_top50$chr),
           strand='+',
           ranges=IRanges(
-            start=michelas_table$Peak_start_38,
-            end=michelas_table$Peak_end_38,
-            names=michelas_table$Peak_ID))
+            start=ENCODE_file_sel_CT_sel_df_top50$Peak_start_38,
+            end=ENCODE_file_sel_CT_sel_df_top50$Peak_end_38,
+            names=ENCODE_file_sel_CT_sel_df_top50$Peak_ID))
         
         cat("gr_controls_0\n")
         cat(str(gr_controls))
