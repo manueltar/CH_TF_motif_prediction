@@ -126,8 +126,6 @@ echo "$dependency_string"
 
 #### Merge results from the TF motif predictors
 
-eval "$(conda shell.bash hook)"
-
 type=$(echo "collect_TF_motif_results")
 outfile_collect_TF_motif_results=$(echo "$Log_files""outfile_5_""$type"".log")
 touch $outfile_collect_TF_motif_results
@@ -146,5 +144,27 @@ input_file_JASPAR=$(echo "$output_dir""JASPAR2020_vertebrates""_controls"".bed")
 
 myjobid_collect_TF_motif_results=$(sbatch $dependency_string --job-name=$name_collect_TF_motif_results --output=$outfile_collect_TF_motif_results --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=4 --mem-per-cpu=4096M --parsable --wrap="Rscript $Rscript_collect_TF_motif_results --input_file_HOMER $input_file_HOMER --input_file_JASPAR $input_file_JASPAR --type $type --out $output_dir")
 myjobid_seff_collect_TF_motif_results=$(sbatch --dependency=afterany:$myjobid_collect_TF_motif_results --open-mode=append --output=$outfile_collect_TF_motif_results --job-name=$seff_name --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=1 --mem-per-cpu=128M --parsable --wrap="seff $myjobid_collect_TF_motif_results >> $outfile_collect_TF_motif_results")	
+
+#### Final_table
+
+type=$(echo "Final_table")
+outfile_Final_table=$(echo "$Log_files""outfile_6_""$type"".log")
+touch $outfile_Final_table
+echo -n "" > $outfile_Final_table
+name_Final_table=$(echo "$type""_job")
+seff_name=$(echo "seff""_""$type")
+
+Rscript_Final_table=$(echo "$Rscripts_path""464_select_controls_and_merge_them.R")
+
+
+top_file=$(echo "$output_dir""ENCODE_top50_controls_BCL11A_GATA6_GATA1.tsv")
+collect_TF_motif_results=$(echo "$output_dir""collect_TF_motif_results.tsv")
+TF_search=$(echo "$output_dir""TF_search.fasta")
+
+# --dependency=afterany:$myjobid_collect_TF_motif_results
+
+myjobid_Final_table=$(sbatch --dependency=afterany:$myjobid_collect_TF_motif_results --job-name=$name_Final_table --output=$outfile_Final_table --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=1 --mem-per-cpu=4096M --parsable --wrap="Rscript $Rscript_Final_table --top_file $top_file --collect_TF_motif_results $collect_TF_motif_results --TF_search $TF_search --type $type --out $output_dir")
+myjobid_seff_Final_table=$(sbatch --dependency=afterany:$myjobid_Final_table --open-mode=append --output=$outfile_Final_table --job-name=$seff_name --partition=cpuq --time=24:00:00 --nodes=1 --ntasks-per-node=1 --mem-per-cpu=128M --parsable --wrap="seff $myjobid_Final_table >> $outfile_Final_table")	
+
 
 
